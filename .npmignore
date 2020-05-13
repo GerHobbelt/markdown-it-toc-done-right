@@ -1,5 +1,7 @@
 /.github
 support/
+.nyc_output
+coverage/
 test/
 Makefile
 .*
