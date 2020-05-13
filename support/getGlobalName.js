@@ -15,7 +15,7 @@ let cli = new argparse.ArgumentParser({
 cli.addArgument([ 'type' ], {
   help: 'type of name/string to produce',
   nargs: '?',
-  choices: [ 'global', 'package', 'version', 'license' ]
+  choices: [ 'global', 'package', 'version', 'license', 'microbundle' ]
 });
 
 let options = cli.parseArgs();
@@ -37,6 +37,10 @@ case 'package':
 
 case 'global':
   cli.exit(0, hdr.globalName);
+  break;
+
+case 'microbundle':
+  cli.exit(0, hdr.safeVariableName);
   break;
 
 case 'license':

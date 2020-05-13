@@ -4,6 +4,7 @@ NPM_PACKAGE := $(shell support/getGlobalName.js package)
 NPM_VERSION := $(shell support/getGlobalName.js version)
 
 GLOBAL_NAME := $(shell support/getGlobalName.js global)
+BUNDLE_NAME := $(shell support/getGlobalName.js microbundle)
 
 TMP_PATH    := /tmp/${NPM_PACKAGE}-$(shell date +%s)
 
@@ -14,7 +15,7 @@ CURR_HEAD   := $(firstword $(shell git show-ref --hash HEAD | cut -b -6) master)
 GITHUB_PROJ := https://github.com//GerHobbelt/${NPM_PACKAGE}
 
 
-build: lint bundle test coverage todo 
+build: lint bundle bundle_demo test coverage todo
 
 lint:
 	eslint .
@@ -27,6 +28,12 @@ bundle:
 	mkdir dist
 	microbundle --no-compress --target node --strict --name ${GLOBAL_NAME}
 	npx prepend-header 'dist/*js' support/header.js
+
+bundle_demo:
+	rm -rf demo/assets
+	cd demo && \
+		npx microbundle --entry ./helper.js -o assets --target web --no-compress --format iife --external none --raw --no-sourcemap
+	npx prepend-header 'demo/assets/*.js' support/header.js
 
 test:
 	jest
@@ -66,6 +73,7 @@ clean:
 	-rm -rf ./coverage/
 	-rm -rf ./dist/
 	-rm -rf ./.nyc_output/
+	-rm -rf ./demo/assets/
 
 superclean: clean
 	-rm -rf ./node_modules/
@@ -74,6 +82,7 @@ superclean: clean
 prep: superclean
 	-ncu -a --packageFile=package.json
 	-npm install
+	-npm audit fix
 
 
 
@@ -84,5 +93,5 @@ upddemo:
 	curl -o lib/uslug.js https://wzrd.in/standalone/uslug@latest
 
 
-.PHONY: clean superclean prep publish lint fix test todo coverage report-coverage doc build gh-doc bundle
+.PHONY: clean superclean prep publish lint fix test todo coverage report-coverage doc build gh-doc bundle bundle_demo
 .SILENT: help lint test todo
