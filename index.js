@@ -1,10 +1,10 @@
-'use strict'
 
-function slugify (x) {
-  return encodeURIComponent(String(x).trim().toLowerCase().replace(/\s+/g, '-'))
+
+function slugify(x) {
+  return encodeURIComponent(String(x).trim().toLowerCase().replace(/\s+/g, '-'));
 }
 
-function htmlencode (x) {
+function htmlencode(x) {
 /*
   // safest, delegate task to native -- IMPORTANT: enabling this breaks both jest and runkit, but with browserify it's fine
   if (document && document.createElement) {
@@ -19,10 +19,10 @@ function htmlencode (x) {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;')
     .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
+    .replace(/>/g, '&gt;');
 }
 
-function tocPlugin (md, options) {
+function tocPlugin(md, options) {
   options = Object.assign({}, {
     placeholder: '(\\$\\{toc\\}|\\[\\[?_?toc_?\\]?\\]|\\$\\<toc(\\{[^}]*\\})\\>)',
     slugify: slugify,
@@ -35,169 +35,169 @@ function tocPlugin (md, options) {
     listType: 'ol',
     format: undefined,
     callback: undefined/* function(html, ast) {} */
-  }, options)
+  }, options);
 
-  let ast
-  const pattern = new RegExp('^' + options.placeholder + '$', 'i')
+  let ast;
+  const pattern = new RegExp('^' + options.placeholder + '$', 'i');
 
-  function toc (state, startLine, endLine, silent) {
-    let token
-    const pos = state.bMarks[startLine] + state.tShift[startLine]
-    const max = state.eMarks[startLine]
+  function toc(state, startLine, endLine, silent) {
+    let token;
+    const pos = state.bMarks[startLine] + state.tShift[startLine];
+    const max = state.eMarks[startLine];
 
     // use whitespace as a line tokenizer and extract the first token
     // to test against the placeholder anchored pattern, rejecting if false
-    const lineFirstToken = state.src.slice(pos, max).split(' ')[0]
-    if (!pattern.test(lineFirstToken)) return false
+    const lineFirstToken = state.src.slice(pos, max).split(' ')[0];
+    if (!pattern.test(lineFirstToken)) return false;
 
-    if (silent) return true
+    if (silent) return true;
 
-    const matches = pattern.exec(lineFirstToken)
-    let inlineOptions = {}
+    const matches = pattern.exec(lineFirstToken);
+    let inlineOptions = {};
     if (matches !== null && matches.length === 3) {
       try {
-        inlineOptions = JSON.parse(matches[2])
+        inlineOptions = JSON.parse(matches[2]);
       } catch (ex) {
         // silently ignore inline options
       }
     }
 
-    state.line = startLine + 1
+    state.line = startLine + 1;
 
-    token = state.push('tocOpen', 'nav', 1)
-    token.markup = ''
-    token.map = [startLine, state.line]
-    token.inlineOptions = inlineOptions
+    token = state.push('tocOpen', 'nav', 1);
+    token.markup = '';
+    token.map = [ startLine, state.line ];
+    token.inlineOptions = inlineOptions;
 
-    token = state.push('tocBody', '', 0)
-    token.markup = ''
-    token.map = [startLine, state.line]
-    token.inlineOptions = inlineOptions
-    token.children = []
+    token = state.push('tocBody', '', 0);
+    token.markup = '';
+    token.map = [ startLine, state.line ];
+    token.inlineOptions = inlineOptions;
+    token.children = [];
 
-    token = state.push('tocClose', 'nav', -1)
-    token.markup = ''
+    token = state.push('tocClose', 'nav', -1);
+    token.markup = '';
 
-    return true
+    return true;
   }
 
   md.renderer.rules.tocOpen = function (tokens, idx/* , options, env, renderer */) {
-    let _options = Object.assign({}, options)
+    let _options = Object.assign({}, options);
     if (tokens && idx >= 0) {
-      const token = tokens[idx]
-      _options = Object.assign(_options, token.inlineOptions)
+      const token = tokens[idx];
+      _options = Object.assign(_options, token.inlineOptions);
     }
-    const id = _options.containerId ? ` id="${htmlencode(_options.containerId)}"` : ''
-    return `<nav${id} class="${htmlencode(_options.containerClass)}">`
-  }
+    const id = _options.containerId ? ` id="${htmlencode(_options.containerId)}"` : '';
+    return `<nav${id} class="${htmlencode(_options.containerClass)}">`;
+  };
 
   md.renderer.rules.tocClose = function (/* tokens, idx, options, env, renderer */) {
-    return '</nav>'
-  }
+    return '</nav>';
+  };
 
   md.renderer.rules.tocBody = function (tokens, idx/* , options, env, renderer */) {
-    let _options = Object.assign({}, options)
+    let _options = Object.assign({}, options);
     if (tokens && idx >= 0) {
-      const token = tokens[idx]
-      _options = Object.assign(_options, token.inlineOptions)
+      const token = tokens[idx];
+      _options = Object.assign(_options, token.inlineOptions);
     }
 
-    const uniques = {}
-    function unique (s) {
-      let u = s
-      let i = 2
-      while (Object.prototype.hasOwnProperty.call(uniques, u)) u = `${s}-${i++}`
-      uniques[u] = true
-      return u
+    const uniques = {};
+    function unique(s) {
+      let u = s;
+      let i = 2;
+      while (Object.prototype.hasOwnProperty.call(uniques, u)) u = `${s}-${i++}`;
+      uniques[u] = true;
+      return u;
     }
 
-    const isLevelSelectedNumber = selection => level => level >= selection
-    const isLevelSelectedArray = selection => level => selection.includes(level)
+    const isLevelSelectedNumber = selection => level => level >= selection;
+    const isLevelSelectedArray = selection => level => selection.includes(level);
 
     const isLevelSelected = Array.isArray(_options.level)
       ? isLevelSelectedArray(_options.level)
-      : isLevelSelectedNumber(_options.level)
+      : isLevelSelectedNumber(_options.level);
 
-    function ast2html (tree) {
-      const listClass = _options.listClass ? ` class="${htmlencode(_options.listClass)}"` : ''
-      const itemClass = _options.itemClass ? ` class="${htmlencode(_options.itemClass)}"` : ''
-      const linkClass = _options.linkClass ? ` class="${htmlencode(_options.linkClass)}"` : ''
+    function ast2html(tree) {
+      const listClass = _options.listClass ? ` class="${htmlencode(_options.listClass)}"` : '';
+      const itemClass = _options.itemClass ? ` class="${htmlencode(_options.itemClass)}"` : '';
+      const linkClass = _options.linkClass ? ` class="${htmlencode(_options.linkClass)}"` : '';
 
-      if (tree.c.length === 0) return ''
+      if (tree.c.length === 0) return '';
 
-      let buffer = ''
+      let buffer = '';
       if (tree.l === 0 || isLevelSelected(tree.l)) {
-        buffer += (`<${htmlencode(_options.listType) + listClass}>`)
+        buffer += (`<${htmlencode(_options.listType) + listClass}>`);
       }
       tree.c.forEach(node => {
         if (isLevelSelected(node.l)) {
-          buffer += (`<li${itemClass}><a${linkClass} href="#${unique(options.slugify(node.n))}">${typeof _options.format === 'function' ? _options.format(node.n, htmlencode) : htmlencode(node.n)}</a>${ast2html(node)}</li>`)
+          buffer += (`<li${itemClass}><a${linkClass} href="#${unique(options.slugify(node.n))}">${typeof _options.format === 'function' ? _options.format(node.n, htmlencode) : htmlencode(node.n)}</a>${ast2html(node)}</li>`);
         } else {
           // unique(options.slugify(node.n))
-          buffer += ast2html(node)
+          buffer += ast2html(node);
         }
-      })
+      });
       if (tree.l === 0 || isLevelSelected(tree.l)) {
-        buffer += (`</${htmlencode(_options.listType)}>`)
+        buffer += (`</${htmlencode(_options.listType)}>`);
       }
-      return buffer
+      return buffer;
     }
 
-    return ast2html(ast)
-  }
+    return ast2html(ast);
+  };
 
-  function headings2ast (tokens) {
-    const ast = { l: 0, n: '', c: [] }
-    const stack = [ast]
+  function headings2ast(tokens) {
+    const ast = { l: 0, n: '', c: [] };
+    const stack = [ ast ];
 
     for (let i = 0, iK = tokens.length; i < iK; i++) {
-      const token = tokens[i]
+      const token = tokens[i];
       if (token.type === 'heading_open') {
         const key = (
           tokens[i + 1]
             .children
-            .filter(function (token) { return token.type === 'text' || token.type === 'code_inline' })
-            .reduce(function (s, t) { return s + t.content }, '')
-        )
+            .filter(function (token) { return token.type === 'text' || token.type === 'code_inline'; })
+            .reduce(function (s, t) { return s + t.content; }, '')
+        );
 
         const node = {
           l: parseInt(token.tag.substr(1), 10),
           n: key,
           c: []
-        }
+        };
 
         if (node.l > stack[0].l) {
-          stack[0].c.push(node)
-          stack.unshift(node)
+          stack[0].c.push(node);
+          stack.unshift(node);
         } else if (node.l === stack[0].l) {
-          stack[1].c.push(node)
-          stack[0] = node
+          stack[1].c.push(node);
+          stack[0] = node;
         } else {
-          while (node.l <= stack[0].l) stack.shift()
-          stack[0].c.push(node)
-          stack.unshift(node)
+          while (node.l <= stack[0].l) stack.shift();
+          stack[0].c.push(node);
+          stack.unshift(node);
         }
       }
     }
 
-    return ast
+    return ast;
   }
 
   md.core.ruler.push('generateTocAst', function (state) {
-    const tokens = state.tokens
-    ast = headings2ast(tokens)
+    const tokens = state.tokens;
+    ast = headings2ast(tokens);
 
     if (typeof options.callback === 'function') {
       options.callback(
         md.renderer.rules.tocOpen() + md.renderer.rules.tocBody() + md.renderer.rules.tocClose(),
         ast
-      )
+      );
     }
-  })
+  });
 
   md.block.ruler.before('heading', 'toc', toc, {
-    alt: ['paragraph', 'reference', 'blockquote']
-  })
+    alt: [ 'paragraph', 'reference', 'blockquote' ]
+  });
 }
 
-export default tocPlugin
+export default tocPlugin;

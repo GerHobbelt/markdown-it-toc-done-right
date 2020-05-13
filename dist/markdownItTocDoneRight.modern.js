@@ -1,5 +1,3 @@
-'use strict';
-
 function slugify(x) {
   return encodeURIComponent(String(x).trim().toLowerCase().replace(/\s+/g, '-'));
 }
@@ -181,5 +179,5 @@ function tocPlugin(md, options) {
   });
 }
 
-module.exports = tocPlugin;
-//# sourceMappingURL=markdownItTocDoneRight.js.map
+export default tocPlugin;
+//# sourceMappingURL=markdownItTocDoneRight.modern.js.map

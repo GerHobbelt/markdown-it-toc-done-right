@@ -1,2 +1,191 @@
-!function(e,n){"object"==typeof exports&&"undefined"!=typeof module?module.exports=n():"function"==typeof define&&define.amd?define(n):e.markdownItTocDoneRight=n()}(this,function(){function e(e){return encodeURIComponent(String(e).trim().toLowerCase().replace(/\s+/g,"-"))}function n(e){return String(e).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/'/g,"&#39;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}return function(t,r){var l;r=Object.assign({},{placeholder:"(\\$\\{toc\\}|\\[\\[?_?toc_?\\]?\\]|\\$\\<toc(\\{[^}]*\\})\\>)",slugify:e,containerClass:"table-of-contents",containerId:void 0,listClass:void 0,itemClass:void 0,linkClass:void 0,level:1,listType:"ol",format:void 0,callback:void 0},r);var i=new RegExp("^"+r.placeholder+"$","i");t.renderer.rules.tocOpen=function(e,t){var l=Object.assign({},r);return e&&t>=0&&(l=Object.assign(l,e[t].inlineOptions)),"<nav"+(l.containerId?' id="'+n(l.containerId)+'"':"")+' class="'+n(l.containerClass)+'">'},t.renderer.rules.tocClose=function(){return"</nav>"},t.renderer.rules.tocBody=function(e,t){var i=Object.assign({},r);e&&t>=0&&(i=Object.assign(i,e[t].inlineOptions));var o,s={},c=Array.isArray(i.level)?(o=i.level,function(e){return o.includes(e)}):function(e){return function(n){return n>=e}}(i.level);return function e(t){var l=i.listClass?' class="'+n(i.listClass)+'"':"",o=i.itemClass?' class="'+n(i.itemClass)+'"':"",a=i.linkClass?' class="'+n(i.linkClass)+'"':"";if(0===t.c.length)return"";var u="";return(0===t.l||c(t.l))&&(u+="<"+(n(i.listType)+l)+">"),t.c.forEach(function(t){c(t.l)?u+="<li"+o+"><a"+a+' href="#'+function(e){for(var n=e,t=2;Object.prototype.hasOwnProperty.call(s,n);)n=e+"-"+t++;return s[n]=!0,n}(r.slugify(t.n))+'">'+("function"==typeof i.format?i.format(t.n,n):n(t.n))+"</a>"+e(t)+"</li>":u+=e(t)}),(0===t.l||c(t.l))&&(u+="</"+n(i.listType)+">"),u}(l)},t.core.ruler.push("generateTocAst",function(e){l=function(e){for(var n={l:0,n:"",c:[]},t=[n],r=0,l=e.length;r<l;r++){var i=e[r];if("heading_open"===i.type){var o=e[r+1].children.filter(function(e){return"text"===e.type||"code_inline"===e.type}).reduce(function(e,n){return e+n.content},""),s={l:parseInt(i.tag.substr(1),10),n:o,c:[]};if(s.l>t[0].l)t[0].c.push(s),t.unshift(s);else if(s.l===t[0].l)t[1].c.push(s),t[0]=s;else{for(;s.l<=t[0].l;)t.shift();t[0].c.push(s),t.unshift(s)}}}return n}(e.tokens),"function"==typeof r.callback&&r.callback(t.renderer.rules.tocOpen()+t.renderer.rules.tocBody()+t.renderer.rules.tocClose(),l)}),t.block.ruler.before("heading","toc",function(e,n,t,r){var l,o=e.src.slice(e.bMarks[n]+e.tShift[n],e.eMarks[n]).split(" ")[0];if(!i.test(o))return!1;if(r)return!0;var s=i.exec(o),c={};if(null!==s&&3===s.length)try{c=JSON.parse(s[2])}catch(e){}return e.line=n+1,(l=e.push("tocOpen","nav",1)).markup="",l.map=[n,e.line],l.inlineOptions=c,(l=e.push("tocBody","",0)).markup="",l.map=[n,e.line],l.inlineOptions=c,l.children=[],(l=e.push("tocClose","nav",-1)).markup="",!0},{alt:["paragraph","reference","blockquote"]})}});
+(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
+  typeof define === 'function' && define.amd ? define(factory) :
+  (global = global || self, global.markdownitTocDoneRight = factory());
+}(this, (function () { 'use strict';
+
+  function slugify(x) {
+    return encodeURIComponent(String(x).trim().toLowerCase().replace(/\s+/g, '-'));
+  }
+
+  function htmlencode(x) {
+    return String(x).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function tocPlugin(md, options) {
+    options = Object.assign({}, {
+      placeholder: '(\\$\\{toc\\}|\\[\\[?_?toc_?\\]?\\]|\\$\\<toc(\\{[^}]*\\})\\>)',
+      slugify: slugify,
+      containerClass: 'table-of-contents',
+      containerId: undefined,
+      listClass: undefined,
+      itemClass: undefined,
+      linkClass: undefined,
+      level: 1,
+      listType: 'ol',
+      format: undefined,
+      callback: undefined
+    }, options);
+    let ast;
+    const pattern = new RegExp('^' + options.placeholder + '$', 'i');
+
+    function toc(state, startLine, endLine, silent) {
+      let token;
+      const pos = state.bMarks[startLine] + state.tShift[startLine];
+      const max = state.eMarks[startLine];
+      const lineFirstToken = state.src.slice(pos, max).split(' ')[0];
+      if (!pattern.test(lineFirstToken)) return false;
+      if (silent) return true;
+      const matches = pattern.exec(lineFirstToken);
+      let inlineOptions = {};
+
+      if (matches !== null && matches.length === 3) {
+        try {
+          inlineOptions = JSON.parse(matches[2]);
+        } catch (ex) {}
+      }
+
+      state.line = startLine + 1;
+      token = state.push('tocOpen', 'nav', 1);
+      token.markup = '';
+      token.map = [startLine, state.line];
+      token.inlineOptions = inlineOptions;
+      token = state.push('tocBody', '', 0);
+      token.markup = '';
+      token.map = [startLine, state.line];
+      token.inlineOptions = inlineOptions;
+      token.children = [];
+      token = state.push('tocClose', 'nav', -1);
+      token.markup = '';
+      return true;
+    }
+
+    md.renderer.rules.tocOpen = function (tokens, idx) {
+      let _options = Object.assign({}, options);
+
+      if (tokens && idx >= 0) {
+        const token = tokens[idx];
+        _options = Object.assign(_options, token.inlineOptions);
+      }
+
+      const id = _options.containerId ? ` id="${htmlencode(_options.containerId)}"` : '';
+      return `<nav${id} class="${htmlencode(_options.containerClass)}">`;
+    };
+
+    md.renderer.rules.tocClose = function () {
+      return '</nav>';
+    };
+
+    md.renderer.rules.tocBody = function (tokens, idx) {
+      let _options = Object.assign({}, options);
+
+      if (tokens && idx >= 0) {
+        const token = tokens[idx];
+        _options = Object.assign(_options, token.inlineOptions);
+      }
+
+      const uniques = {};
+
+      function unique(s) {
+        let u = s;
+        let i = 2;
+
+        while (Object.prototype.hasOwnProperty.call(uniques, u)) u = `${s}-${i++}`;
+
+        uniques[u] = true;
+        return u;
+      }
+
+      const isLevelSelectedNumber = selection => level => level >= selection;
+
+      const isLevelSelectedArray = selection => level => selection.includes(level);
+
+      const isLevelSelected = Array.isArray(_options.level) ? isLevelSelectedArray(_options.level) : isLevelSelectedNumber(_options.level);
+
+      function ast2html(tree) {
+        const listClass = _options.listClass ? ` class="${htmlencode(_options.listClass)}"` : '';
+        const itemClass = _options.itemClass ? ` class="${htmlencode(_options.itemClass)}"` : '';
+        const linkClass = _options.linkClass ? ` class="${htmlencode(_options.linkClass)}"` : '';
+        if (tree.c.length === 0) return '';
+        let buffer = '';
+
+        if (tree.l === 0 || isLevelSelected(tree.l)) {
+          buffer += `<${htmlencode(_options.listType) + listClass}>`;
+        }
+
+        tree.c.forEach(node => {
+          if (isLevelSelected(node.l)) {
+            buffer += `<li${itemClass}><a${linkClass} href="#${unique(options.slugify(node.n))}">${typeof _options.format === 'function' ? _options.format(node.n, htmlencode) : htmlencode(node.n)}</a>${ast2html(node)}</li>`;
+          } else {
+            buffer += ast2html(node);
+          }
+        });
+
+        if (tree.l === 0 || isLevelSelected(tree.l)) {
+          buffer += `</${htmlencode(_options.listType)}>`;
+        }
+
+        return buffer;
+      }
+
+      return ast2html(ast);
+    };
+
+    function headings2ast(tokens) {
+      const ast = {
+        l: 0,
+        n: '',
+        c: []
+      };
+      const stack = [ast];
+
+      for (let i = 0, iK = tokens.length; i < iK; i++) {
+        const token = tokens[i];
+
+        if (token.type === 'heading_open') {
+          const key = tokens[i + 1].children.filter(function (token) {
+            return token.type === 'text' || token.type === 'code_inline';
+          }).reduce(function (s, t) {
+            return s + t.content;
+          }, '');
+          const node = {
+            l: parseInt(token.tag.substr(1), 10),
+            n: key,
+            c: []
+          };
+
+          if (node.l > stack[0].l) {
+            stack[0].c.push(node);
+            stack.unshift(node);
+          } else if (node.l === stack[0].l) {
+            stack[1].c.push(node);
+            stack[0] = node;
+          } else {
+            while (node.l <= stack[0].l) stack.shift();
+
+            stack[0].c.push(node);
+            stack.unshift(node);
+          }
+        }
+      }
+
+      return ast;
+    }
+
+    md.core.ruler.push('generateTocAst', function (state) {
+      const tokens = state.tokens;
+      ast = headings2ast(tokens);
+
+      if (typeof options.callback === 'function') {
+        options.callback(md.renderer.rules.tocOpen() + md.renderer.rules.tocBody() + md.renderer.rules.tocClose(), ast);
+      }
+    });
+    md.block.ruler.before('heading', 'toc', toc, {
+      alt: ['paragraph', 'reference', 'blockquote']
+    });
+  }
+
+  return tocPlugin;
+
+})));
 //# sourceMappingURL=markdownItTocDoneRight.umd.js.map

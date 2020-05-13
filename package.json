@@ -1,21 +1,7 @@
 {
-  "name": "markdown-it-toc-done-right",
-  "version": "4.1.0",
+  "name": "@gerhobbelt/markdown-it-toc-done-right",
+  "version": "4.1.0-1",
   "description": "Table of contents (TOC) for markdown-it markdown parser with focus on semantic and security.",
-  "source": "index.js",
-  "main": "dist/markdownItTocDoneRight.js",
-  "module": "dist/markdownItTocDoneRight.mjs",
-  "unpkg": "dist/markdownItTocDoneRight.umd.js",
-  "scripts": {
-    "build": "microbundle",
-    "dev": "microbundle watch",
-    "lint": "standard --verbose index.js | snazzy",
-    "test": "jest --coverage"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/nagaozen/markdown-it-toc-done-right.git"
-  },
   "keywords": [
     "markdown-it-plugin",
     "markdown-it",
@@ -24,34 +10,55 @@
     "table of contents"
   ],
   "author": "Fabio Zendhi Nagao <https://github.com/nagaozen>",
+  "repository": "GerHobbelt/markdown-it-toc-done-right",
   "license": "MIT",
-  "files": [
-    "README.md",
-    "LICENSE",
-    "dist/*",
-    "runkit.js"
-  ],
-  "bugs": {
-    "url": "https://github.com/nagaozen/markdown-it-toc-done-right/issues"
+  "source": "index.js",
+  "main": "dist/markdownItTocDoneRight.js",
+  "module": "dist/markdownItTocDoneRight.mjs",
+  "engines": {
+    "node": ">=10"
   },
-  "homepage": "https://github.com/nagaozen/markdown-it-toc-done-right#readme",
+  "scripts": {
+    "build": "make",
+    "test": "make test",
+    "todo": "make todo",
+    "clean": "make clean",
+    "superclean": "make superclean",
+    "doc": "make doc",
+    "lint": "make lint",
+    "lintfix": "make lintfix",
+    "cov": "make report-coverage",
+    "pub": "npm publish --access public"
+  },
+  "devDependencies": {
+    "@gerhobbelt/markdown-it": "10.0.0-34",
+    "@gerhobbelt/markdown-it-testgen": "0.1.6-7",
+    "browserify": "16.5.1",
+    "chai": "4.2.0",
+    "cross-env": "7.0.2",
+    "eslint": "7.0.0",
+    "jest": "26.0.1",
+    "microbundle": "^0.12.0",
+    "mocha": "7.1.2",
+    "nyc": "15.0.1",
+    "@gerhobbelt/prepend-header": "1.0.8-2",
+    "rollup": "2.9.1",
+    "rollup-plugin-commonjs": "10.1.0",
+    "rollup-plugin-json": "4.0.0",
+    "rollup-plugin-node-resolve": "5.2.0",
+    "terser": "4.6.13",
+    "uslug": "1.0.4"
+  },
+  "peerDependencies": {
+    "markdown-it": ">=10",
+    "markdown-it-anchor": "*"
+  },
   "jest": {
     "verbose": true
   },
-  "runkitExampleFilename": "runkit.js",
-  "dependencies": {},
-  "devDependencies": {
-    "coveralls": "^3.0.7",
-    "jest": "^24.9.0",
-    "markdown-it": "^10.0.0",
-    "markdown-it-anchor": "^5.2.5",
-    "microbundle": "^0.11.0",
-    "snazzy": "^8.0.0",
-    "standard": "^13.1.0",
-    "uslug": "^1.0.4"
-  },
-  "peerDependencies": {
-    "markdown-it": "^10.0.0",
-    "markdown-it-anchor": "^5.2.5"
-  }
+  "reporter": [
+    "lcov",
+    "text",
+    "text-summary"
+  ]
 }
