@@ -1,12 +1,16 @@
 
 
+/*eslint-env jest*/
 
 
-const md = require('markdown-it')({
+
+
+
+const md = require('@gerhobbelt/markdown-it')({
   html: false,
   xhtmlOut: true,
   typographer: true
-}).use(require('markdown-it-anchor'), { permalink: true, permalinkBefore: true, permalinkSymbol: '§' })
+}).use(require('@gerhobbelt/markdown-it-anchor'), { permalink: true, permalinkBefore: true, permalinkSymbol: '§' })
   .use(require('../dist/markdownItTocDoneRight.js'));
 
 
@@ -20,11 +24,11 @@ function uslugify(x) {
 function custom_format(x, h) {
   return `<span>${h(x)}</span>`;
 }
-const umd = require('markdown-it')({
+const umd = require('@gerhobbelt/markdown-it')({
   html: false,
   xhtmlOut: true,
   typographer: true
-}).use(require('markdown-it-anchor'), { permalink: true, permalinkBefore: true, permalinkSymbol: '§', slugify: uslugify })
+}).use(require('@gerhobbelt/markdown-it-anchor'), { permalink: true, permalinkBefore: true, permalinkSymbol: '§', slugify: uslugify })
   .use(require('../dist/markdownItTocDoneRight.js'), {
     placeholder: '\\@\\[\\[TOC\\]\\]',
     slugify: uslugify,
@@ -34,7 +38,7 @@ const umd = require('markdown-it')({
     linkClass: 'my-link',
     listType: 'ul',
     format: custom_format,
-    callback: function (html, ast) {
+    callback: function (html, ast, state) {
       console.log(ast);
     }
   });
@@ -43,29 +47,29 @@ const umd = require('markdown-it')({
 
 
 
-const level_md = require('markdown-it')({
+const level_md = require('@gerhobbelt/markdown-it')({
   html: false,
   xhtmlOut: true,
   typographer: true
-}).use(require('markdown-it-anchor'), { permalink: true, permalinkBefore: true, permalinkSymbol: '§', level: 2 })
+}).use(require('@gerhobbelt/markdown-it-anchor'), { permalink: true, permalinkBefore: true, permalinkSymbol: '§', level: 1 })
   .use(require('../dist/markdownItTocDoneRight.js'), { level: 2 });
 
 
 
 
 
-const level_md_array = require('markdown-it')({
+const level_md_array = require('@gerhobbelt/markdown-it')({
   html: false,
   xhtmlOut: true,
   typographer: true
-}).use(require('markdown-it-anchor'), { permalink: true, permalinkBefore: true, permalinkSymbol: '§', level: [ 1, 2 ] })
+}).use(require('@gerhobbelt/markdown-it-anchor'), { permalink: true, permalinkBefore: true, permalinkSymbol: '§', level: [ 1, 2 ] })
   .use(require('../dist/markdownItTocDoneRight.js'), { level: [ 1, 2 ] });
 
 
 
 
 
-const containerId_md = require('markdown-it')({
+const containerId_md = require('@gerhobbelt/markdown-it')({
   html: false,
   xhtmlOut: true,
   typographer: true
@@ -167,16 +171,20 @@ test('and sometimes slugify with suffix may generate another existing header', (
 });
 
 test('level(Int Type) option should work as expected', () => {
-  expect(level_md.render('${toc}\n\n# header\n\n## header\n\n## header 2')).toBe(`<nav class="table-of-contents"><ol><li><a href="#header"> header</a></li><li><a href="#header-2"> header 2</a></li></ol></nav><h1>header</h1>
-<h2 id="header"><a class="header-anchor" href="#header">§</a> header</h2>
-<h2 id="header-2"><a class="header-anchor" href="#header-2">§</a> header 2</h2>
+  expect(level_md.render('${toc}\n\n# header\n\n## header\n\n### header 2\n\n## header 2\n\n### header 2')).toBe(`<nav class="table-of-contents"><ol><li><a href="#header"> header</a><ol><li><a href="#header-2">header</a></li><li><a href="#header-2-2">header 2</a></li></ol></li></ol></nav><h1 id="header"><a class="header-anchor" href="#header">§</a> header</h1>
+<h2 id="header-2">header</h2>
+<h3>header 2</h3>
+<h2 id="header-2-2">header 2</h2>
+<h3>header 2</h3>
 `);
 });
 
 test('level(Array Type) option should work as expected', () => {
-  expect(level_md_array.render('${toc}\n\n# header\n\n## header\n\n## header 2\n\n# header 4\n\n## header 5\n\n## header 2')).toBe(`<nav class="table-of-contents"><ol><li><a href="#header"> header</a><ol><li><a href="#header-2"> header</a></li><li><a href="#header-2-2"> header 2</a></li></ol></li><li><a href="#header-4"> header 4</a><ol><li><a href="#header-5"> header 5</a></li><li><a href="#header-2-3"> header 2</a></li></ol></li></ol></nav><h1 id="header"><a class="header-anchor" href="#header">§</a> header</h1>
+  expect(level_md_array.render('${toc}\n\n# header\n\n## header\n\n### header 2\n\n## header 2\n\n### header 2\n\n# header 4\n\n## header 5\n\n## header 2')).toBe(`<nav class="table-of-contents"><ol><li><a href="#header"> header</a><ol><li><a href="#header-2"> header</a></li><li><a href="#header-2-2"> header 2</a></li></ol></li><li><a href="#header-4"> header 4</a><ol><li><a href="#header-5"> header 5</a></li><li><a href="#header-2-3"> header 2</a></li></ol></li></ol></nav><h1 id="header"><a class="header-anchor" href="#header">§</a> header</h1>
 <h2 id="header-2"><a class="header-anchor" href="#header-2">§</a> header</h2>
+<h3>header 2</h3>
 <h2 id="header-2-2"><a class="header-anchor" href="#header-2-2">§</a> header 2</h2>
+<h3>header 2</h3>
 <h1 id="header-4"><a class="header-anchor" href="#header-4">§</a> header 4</h1>
 <h2 id="header-5"><a class="header-anchor" href="#header-5">§</a> header 5</h2>
 <h2 id="header-2-3"><a class="header-anchor" href="#header-2-3">§</a> header 2</h2>

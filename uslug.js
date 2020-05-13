@@ -1,4 +1,0 @@
-
-
-
-window.uslug  = require('uslug');

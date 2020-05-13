@@ -34,7 +34,7 @@ rules:
   guard-for-in:           2
   handle-callback-err:    2
 
-  indent:                 [ 2, 2, { VariableDeclarator: { var: 2, let: 2, const: 3 }, SwitchCase: 0, MemberExpression: "off", ignoreComments: true } ]
+  indent:                 [ 1, 2, { VariableDeclarator: { var: 2, let: 2, const: 3 }, SwitchCase: 0, MemberExpression: "off", ignoreComments: true } ]
 
   # key-spacing:            [ 2, { "align": "value" } ]
   keyword-spacing:        2
@@ -118,7 +118,7 @@ rules:
   no-shadow:              1
   no-shadow-restricted-names: 2
   no-sparse-arrays:       2
-  no-trailing-spaces:     2
+  no-trailing-spaces:     1
   no-undef:               1
   no-undef-init:          2
   no-undefined:           1
@@ -138,7 +138,7 @@ rules:
   semi:                   [ 2, always ]
   semi-spacing:           2
   space-before-blocks:  2
-  space-before-function-paren: [ 2, { "anonymous": "always", "named": "never" } ]
+  space-before-function-paren: [ 1, { "anonymous": "always", "named": "never" } ]
   space-in-parens:        [ 2, never ]
   space-infix-ops:        2
   space-unary-ops:        2

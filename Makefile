@@ -14,7 +14,7 @@ CURR_HEAD   := $(firstword $(shell git show-ref --hash HEAD | cut -b -6) master)
 GITHUB_PROJ := https://github.com//GerHobbelt/${NPM_PACKAGE}
 
 
-build: lint browserify rollup test coverage todo 
+build: lint bundle test coverage todo 
 
 lint:
 	eslint .
@@ -22,17 +22,19 @@ lint:
 lintfix:
 	eslint --fix .
 
-rollup:
-	-mkdir dist
-	# Rollup
-	rollup -c
+bundle:
+	-rm -rf ./dist
+	mkdir dist
+	microbundle --no-compress --target node --strict --name ${GLOBAL_NAME}
+	npx prepend-header 'dist/*js' support/header.js
 
 test:
 	jest
 
 coverage:
 	-rm -rf coverage
-	cross-env NODE_ENV=test nyc jest
+	-rm -rf .nyc_output
+	jest --coverage
 
 report-coverage: lint coverage
 
@@ -53,21 +55,6 @@ publish:
 	git tag ${NPM_VERSION} && git push origin ${NPM_VERSION}
 	npm run pub
 
-browserify:
-	-rm -rf ./dist
-	mkdir dist
-	# Browserify
-	microbundle --no-compress --target node --strict --name ${GLOBAL_NAME}
-	( printf "/*! ${NPM_PACKAGE} ${NPM_VERSION} ${GITHUB_PROJ} @license MIT */\n\n" ; \
-		browserify ./index.js -s ${GLOBAL_NAME} \
-		) > dist/${NPM_PACKAGE}.js
-
-minify: browserify
-	# Minify
-	terser dist/${NPM_PACKAGE}.js -b beautify=false,ascii_only=true -c -m \
-		--preamble "/*! ${NPM_PACKAGE} ${NPM_VERSION} ${GITHUB_PROJ} @license MIT */" \
-		> dist/${NPM_PACKAGE}.min.js
-
 todo:
 	@echo ""
 	@echo "TODO list"
@@ -78,6 +65,7 @@ todo:
 clean:
 	-rm -rf ./coverage/
 	-rm -rf ./dist/
+	-rm -rf ./.nyc_output/
 
 superclean: clean
 	-rm -rf ./node_modules/
@@ -96,5 +84,5 @@ upddemo:
 	curl -o lib/uslug.js https://wzrd.in/standalone/uslug@latest
 
 
-.PHONY: clean superclean prep publish lint fix test todo coverage report-coverage doc build browserify minify gh-doc rollup
+.PHONY: clean superclean prep publish lint fix test todo coverage report-coverage doc build gh-doc bundle
 .SILENT: help lint test todo

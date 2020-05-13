@@ -15,7 +15,7 @@ function tocPlugin(md, options) {
     listClass: undefined,
     itemClass: undefined,
     linkClass: undefined,
-    level: 1,
+    level: 6,
     listType: 'ol',
     format: undefined,
     callback: undefined
@@ -55,12 +55,9 @@ function tocPlugin(md, options) {
   }
 
   md.renderer.rules.tocOpen = function (tokens, idx) {
-    let _options = Object.assign({}, options);
+    const token = tokens[idx];
 
-    if (tokens && idx >= 0) {
-      const token = tokens[idx];
-      _options = Object.assign(_options, token.inlineOptions);
-    }
+    let _options = Object.assign({}, options, token.inlineOptions);
 
     const id = _options.containerId ? ` id="${htmlencode(_options.containerId)}"` : '';
     return `<nav${id} class="${htmlencode(_options.containerClass)}">`;
@@ -71,57 +68,74 @@ function tocPlugin(md, options) {
   };
 
   md.renderer.rules.tocBody = function (tokens, idx) {
-    let _options = Object.assign({}, options);
+    const token = tokens[idx];
 
-    if (tokens && idx >= 0) {
-      const token = tokens[idx];
-      _options = Object.assign(_options, token.inlineOptions);
+    let _options = Object.assign({}, options, token.inlineOptions);
+
+    const uniques = new Map();
+
+    function unique(slug, failOnNonUnique) {
+      let key = slug;
+      let n = 2;
+
+      while (uniques.has(key)) {
+        key = `${slug}-${n++}`;
+      }
+
+      if (n > 2 && failOnNonUnique) {
+        throw new Error(`The ID attribute '${slug}' defined by user or other markdown-it plugin is not unique. Please fix it in your markdown to continue.`);
+      }
+
+      uniques.set(key, true);
+      return key;
     }
 
-    const uniques = {};
-
-    function unique(s) {
-      let u = s;
-      let i = 2;
-
-      while (Object.prototype.hasOwnProperty.call(uniques, u)) u = `${s}-${i++}`;
-
-      uniques[u] = true;
-      return u;
-    }
-
-    const isLevelSelectedNumber = selection => level => level >= selection;
+    const isLevelSelectedNumber = selection => level => level <= selection;
 
     const isLevelSelectedArray = selection => level => selection.includes(level);
 
     const isLevelSelected = Array.isArray(_options.level) ? isLevelSelectedArray(_options.level) : isLevelSelectedNumber(_options.level);
 
-    function ast2html(tree) {
+    function ast2html(tree, level) {
       const listClass = _options.listClass ? ` class="${htmlencode(_options.listClass)}"` : '';
       const itemClass = _options.itemClass ? ` class="${htmlencode(_options.itemClass)}"` : '';
       const linkClass = _options.linkClass ? ` class="${htmlencode(_options.linkClass)}"` : '';
       if (tree.c.length === 0) return '';
       let buffer = '';
 
-      if (tree.l === 0 || isLevelSelected(tree.l)) {
+      if (tree.l === 0 || isLevelSelected(tree.l + 1)) {
         buffer += `<${htmlencode(_options.listType) + listClass}>`;
       }
 
       tree.c.forEach(node => {
+        let slug = node.token.attrGet('id');
+
         if (isLevelSelected(node.l)) {
-          buffer += `<li${itemClass}><a${linkClass} href="#${unique(options.slugify(node.n))}">${typeof _options.format === 'function' ? _options.format(node.n, htmlencode) : htmlencode(node.n)}</a>${ast2html(node)}</li>`;
+          if (slug == null) {
+            slug = unique(options.slugify(node.n), false);
+            node.token.attrSet('id', slug);
+          }
+
+          buffer += `<li${itemClass}><a${linkClass} href="#${slug}">${typeof _options.format === 'function' ? _options.format(node.n, htmlencode) : htmlencode(node.n)}</a>${ast2html(node)}</li>`;
         } else {
           buffer += ast2html(node);
         }
       });
 
-      if (tree.l === 0 || isLevelSelected(tree.l)) {
+      if (tree.l === 0 || isLevelSelected(tree.l + 1)) {
         buffer += `</${htmlencode(_options.listType)}>`;
       }
 
       return buffer;
     }
 
+    tokens.filter(token => token.type === 'heading_open').forEach(token => {
+      let slug = token.attrGet('id');
+
+      if (slug != null) {
+        unique(slug, true);
+      }
+    });
     return ast2html(ast);
   };
 
@@ -145,7 +159,8 @@ function tocPlugin(md, options) {
         const node = {
           l: parseInt(token.tag.substr(1), 10),
           n: key,
-          c: []
+          c: [],
+          token
         };
 
         if (node.l > stack[0].l) {
@@ -171,7 +186,13 @@ function tocPlugin(md, options) {
     ast = headings2ast(tokens);
 
     if (typeof options.callback === 'function') {
-      options.callback(md.renderer.rules.tocOpen() + md.renderer.rules.tocBody() + md.renderer.rules.tocClose(), ast);
+      for (let i = 0, iK = tokens.length; i < iK; i++) {
+        const token = tokens[i];
+
+        if (token.type === 'tocOpen') {
+          options.callback(md.renderer.rules.tocOpen(tokens, i) + md.renderer.rules.tocBody(tokens, i) + md.renderer.rules.tocClose(), ast, state);
+        }
+      }
     }
   });
   md.block.ruler.before('heading', 'toc', toc, {
