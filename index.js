@@ -34,6 +34,7 @@ function tocPlugin(md, options) {
     level: 1,
     listType: 'ol',
     format: undefined,
+    max_depth: 3,
     callback: undefined/* function(html, ast) {} */
   }, options);
 
@@ -118,7 +119,9 @@ function tocPlugin(md, options) {
       ? isLevelSelectedArray(_options.level)
       : isLevelSelectedNumber(_options.level);
 
-    function ast2html(tree) {
+  function ast2html (tree, level) {
+    if (level > options.max_depth) return '';
+    
       const listClass = _options.listClass ? ` class="${htmlencode(_options.listClass)}"` : '';
       const itemClass = _options.itemClass ? ` class="${htmlencode(_options.itemClass)}"` : '';
       const linkClass = _options.linkClass ? ` class="${htmlencode(_options.linkClass)}"` : '';
@@ -131,10 +134,10 @@ function tocPlugin(md, options) {
       }
       tree.c.forEach(node => {
         if (isLevelSelected(node.l)) {
-          buffer += (`<li${itemClass}><a${linkClass} href="#${unique(options.slugify(node.n))}">${typeof _options.format === 'function' ? _options.format(node.n, htmlencode) : htmlencode(node.n)}</a>${ast2html(node)}</li>`);
+          buffer += (`<li${itemClass}><a${linkClass} href="#${unique(options.slugify(node.n))}">${typeof _options.format === 'function' ? _options.format(node.n, htmlencode) : htmlencode(node.n)}</a>${ast2html(node, level + 1)}</li>`);
         } else {
           // unique(options.slugify(node.n))
-          buffer += ast2html(node);
+          buffer += ast2html(node, level + 1);
         }
       });
       if (tree.l === 0 || isLevelSelected(tree.l)) {
@@ -143,7 +146,7 @@ function tocPlugin(md, options) {
       return buffer;
     }
 
-    return ast2html(ast);
+    return ast2html(ast, 1);
   };
 
   function headings2ast(tokens) {
