@@ -2,6 +2,5 @@
 support/
 .nyc_output
 coverage/
-test/
 Makefile
 .*

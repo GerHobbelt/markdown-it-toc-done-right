@@ -4,9 +4,9 @@
 /* global window */
 
 import markdownit from '@gerhobbelt/markdown-it';
-import markdownItAnchor from '@gerhobbelt/markdown-it-anchor';
+import * as markdownItAnchor from '@gerhobbelt/markdown-it-anchor';
 import uslug from 'uslug';
-import markdownItTocDoneRight from '../';
+import * as markdownItTocDoneRight from '../';
 
 let demo = {
   markdownit,
