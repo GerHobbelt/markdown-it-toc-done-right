@@ -1,4 +1,4 @@
-/*! markdown-it-toc-done-right 4.1.0-4 https://github.com//GerHobbelt/markdown-it-toc-done-right @license MIT */
+/*! markdown-it-toc-done-right 4.2.0-4 https://github.com//GerHobbelt/markdown-it-toc-done-right @license MIT */
 
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -26,6 +26,7 @@
     options = Object.assign({}, {
       placeholder: '(\\$\\{toc\\}|\\[\\[?_?toc_?\\]?\\]|\\$\\<toc(\\{[^}]*\\})\\>)',
       slugify: slugify,
+      uniqueSlugStartIndex: 1,
       containerClass: 'table-of-contents',
       containerId: undefined,
       listClass: undefined,
@@ -105,7 +106,7 @@
       function unique(slug, failOnNonUnique) {
         // If first slug, return as is.
         let key = slug;
-        let n = 2;
+        let n = _options.uniqueSlugStartIndex;
 
         while (uniques.has(key)) {
           // Duplicate slug, add a `-2`, `-3`, etc. to keep ID unique.

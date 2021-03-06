@@ -26,6 +26,7 @@ function tocPlugin(md, options) {
   options = Object.assign({}, {
     placeholder: '(\\$\\{toc\\}|\\[\\[?_?toc_?\\]?\\]|\\$\\<toc(\\{[^}]*\\})\\>)',
     slugify: slugify,
+    uniqueSlugStartIndex: 1,
     containerClass: 'table-of-contents',
     containerId: undefined,
     listClass: undefined,
@@ -100,7 +101,7 @@ function tocPlugin(md, options) {
     function unique(slug, failOnNonUnique) {
       // If first slug, return as is.
       let key = slug;
-      let n = 2;
+      let n = _options.uniqueSlugStartIndex;
       while (uniques.has(key)) {
         // Duplicate slug, add a `-2`, `-3`, etc. to keep ID unique.
         key = `${slug}-${n++}`;

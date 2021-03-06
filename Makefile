@@ -32,7 +32,7 @@ bundle:
 bundle_demo:
 	rm -rf demo/assets
 	cd demo && \
-		npx microbundle --entry ./helper.js -o assets --target web --no-compress --format iife --external none --raw --no-sourcemap
+		npx microbundle --entry ./helper.js -o assets --target web --no-compress --format iife --external none --raw --no-sourcemap --name demo
 	npx prepend-header 'demo/assets/*.js' support/header.js
 
 test:

@@ -37,8 +37,8 @@ var md = window.markdownit({
 	html: false,
 	xhtmlOut: true,
 	typographer: true
-}).use( window.markdownitAnchor, { permalink: true, permalinkBefore: true, permalinkSymbol: '§' } )
-  .use( window.markdownitTocDoneRight );
+}).use( window.markdownItAnchor, { permalink: true, permalinkBefore: true, permalinkSymbol: '§' } )
+  .use( window.markdownItTocDoneRight );
 
 var result = md.render("# markdown-it rulezz!\n\n${toc}\n## with markdown-it-toc-done-right rulezz even more!");
 ```
@@ -53,19 +53,20 @@ md.use(require("markdown-it-toc-done-right"), options);
 
 These options are available:
 
-Name              | Description                                                      | Default
-------------------|------------------------------------------------------------------|-------------------------------------
-"placeholder"     | The pattern serving as the TOC placeholder in your markdown      | "(\\$\\{toc\\}|\\[\\[?_?toc_?\\]?\\])"
-"slugify"         | A custom slugification function                                  | See [`index.js`](index.js)
-"containerClass"  | The class for the container DIV                                  | "table-of-contents"
-"containerId"     | The ID for the container DIV                                     | `undefined`
-"listClass"       | The class for the `listType` HTMLElement                         | `undefined`
-"itemClass"       | The class for the LI                                             | `undefined`
-"linkClass"       | The class for the A                                              | `undefined`
-"level"           | Minimum level to apply anchors on or array of selected levels    | 1
-"listType"        | Type of list (`ul` for unordered, `ol` for ordered)              | `ol`
-"format"          | A function for formatting headings (see below)                   | `undefined`
-"callback"        | A function (html, ast) {} called after rendering.                | `undefined`
+Name                   | Description                                                      | Default
+-----------------------|------------------------------------------------------------------|-------------------------------------
+`placeholder`          | The pattern serving as the TOC placeholder in your markdown      | "(\\$\\{toc\\}|\\[\\[?_?toc_?\\]?\\])"
+`slugify`              | A custom slugification function                                  | See [`index.js`](index.js)
+`uniqueSlugStartIndex` | Index to start with when making duplicate slugs unique.          | 1
+`containerClass`       | The class for the container DIV                                  | "table-of-contents"
+`containerId`          | The ID for the container DIV                                     | `undefined`
+`listClass`            | The class for the `listType` HTMLElement                         | `undefined`
+`itemClass`            | The class for the LI                                             | `undefined`
+`linkClass`            | The class for the A                                              | `undefined`
+`level`                | Minimum level to apply anchors on or array of selected levels    | 1
+`listType`             | Type of list (`ul` for unordered, `ol` for ordered)              | `ol`
+`format`               | A function for formatting headings (see below)                   | `undefined`
+`callback`             | A function (html, ast) {} called after rendering.                | `undefined`
 
 `format` is an optional function for changing how the headings are displayed in the TOC _e.g._ Wrapping content in `<span>`:
 
