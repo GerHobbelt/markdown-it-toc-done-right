@@ -3,7 +3,7 @@
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
-  (global = global || self, global.markdownitTocDoneRight = factory());
+  (global = global || self, global.true = factory());
 }(this, (function () { 'use strict';
 
   function slugify(x) {
@@ -190,11 +190,27 @@
         const token = tokens[i];
 
         if (token.type === 'heading_open') {
-          const key = tokens[i + 1].children.filter(function (token) {
-            return token.type === 'text' || token.type === 'code_inline';
-          }).reduce(function (s, t) {
-            return s + t.content;
-          }, '');
+          let keyparts = [];
+
+          for (let j = i + 1; j < iK; j++) {
+            const token = tokens[j];
+
+            if (token.type === 'heading_close') {
+              break;
+            }
+
+            if (!token.children) {
+              continue;
+            }
+
+            const keypart = token.children.filter(token => token.type === 'text' || token.type === 'code_inline').reduce((acc, t) => acc + t.content, '').trim();
+
+            if (keypart.length > 0) {
+              keyparts.push(keypart);
+            }
+          }
+
+          const key = keyparts.join(' ');
           const node = {
             l: parseInt(token.tag.substr(1), 10),
             n: key,
