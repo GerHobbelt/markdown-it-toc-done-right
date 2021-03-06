@@ -1,4 +1,4 @@
-/*! markdown-it-toc-done-right 4.2.0-4 https://github.com//GerHobbelt/markdown-it-toc-done-right @license MIT */
+/*! markdown-it-toc-done-right 4.2.0-5 https://github.com//GerHobbelt/markdown-it-toc-done-right @license MIT */
 
 'use strict';
 

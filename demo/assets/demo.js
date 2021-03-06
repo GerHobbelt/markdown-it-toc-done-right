@@ -19571,7 +19571,7 @@ var demo = (function () {
 
   var uslug$1 = uslug;
 
-  /*! markdown-it-toc-done-right 4.2.0-4 https://github.com//GerHobbelt/markdown-it-toc-done-right @license MIT */
+  /*! markdown-it-toc-done-right 4.2.0-5 https://github.com//GerHobbelt/markdown-it-toc-done-right @license MIT */
   function slugify$1(x) {
     return encodeURIComponent(String(x).trim().toLowerCase().replace(/\s+/g, '-'));
   }
