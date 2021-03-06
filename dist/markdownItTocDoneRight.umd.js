@@ -26,7 +26,7 @@
     options = Object.assign({}, {
       placeholder: '(\\$\\{toc\\}|\\[\\[?_?toc_?\\]?\\]|\\$\\<toc(\\{[^}]*\\})\\>)',
       slugify: slugify,
-      uniqueSlugStartIndex: 1,
+      uniqueSlugStartIndex: 2,
       containerClass: 'table-of-contents',
       containerId: undefined,
       listClass: undefined,
@@ -113,7 +113,7 @@
           key = `${slug}-${n++}`;
         }
 
-        if (n > 2 && failOnNonUnique) {
+        if (n > _options.uniqueSlugStartIndex && failOnNonUnique) {
           throw new Error(`The ID attribute '${slug}' defined by user or other markdown-it plugin is not unique. Please fix it in your markdown to continue.`);
         } // Mark this slug as used in the environment.
 

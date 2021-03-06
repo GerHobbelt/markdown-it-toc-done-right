@@ -77,6 +77,16 @@ const containerId_md = require('@gerhobbelt/markdown-it')({
 
 
 
+const slugStartAtZero_md = require('@gerhobbelt/markdown-it')({
+  html: false,
+  xhtmlOut: true,
+  typographer: true
+}).use(require('../dist/markdownItTocDoneRight.js'), { uniqueSlugStartIndex: 0 });
+
+
+
+
+
 
 test('empty set', () => {
   expect(md.render('${toc}')).toBe('<nav class="table-of-contents"></nav>');
@@ -188,6 +198,14 @@ test('level(Array Type) option should work as expected', () => {
 <h2 id="header-5"><a class="header-anchor" href="#header-5">§</a> header 5</h2>
 <h2 id="header-2-3"><a class="header-anchor" href="#header-2-3">§</a> header 2</h2>
 `);
+});
+
+test('uniqueSlugStartIndex set to 0', () => {
+  const mdContent = '[toc]\n\n# header\n\n## header';
+  const htmlContent = `<nav class="table-of-contents"><ol><li><a href="#header"> header</a><ol><li><a href="#header-0"> header</a></li></ol></li></ol></nav><h1 id="header"><a class="header-anchor" href="#header">§</a> header</h1>
+<h2 id="header-0"><a class="header-anchor" href="#header-0">§</a> header</h2>
+`;
+  expect(slugStartAtZero_md.render(mdContent)).toBe(htmlContent);
 });
 
 test('all other options should work as expected', () => {
